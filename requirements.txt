@@ -1,0 +1,11 @@
+pandas
+tabulate
+langchain
+langchain-community
+chromadb
+sentence-transformers
+pyhwpx
+ollama
+beautifulsoup4
+html5lib
+lxml

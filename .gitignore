@@ -1,0 +1,25 @@
+# 가상환경 (Virtual Environment)
+venv/
+.venv/
+env/
+
+# 파이썬 캐시 및 컴파일 파일
+__pycache__/
+*.pyc
+
+
+# HWP 변환 시 생성되는 임시 파일
+temp_table.html
+temp.html
+
+
+# 실험 결과 데이터 (선택 사항)
+# 논문용 고정 데이터셋이 아니라면 제외하는 것이 좋습니다.
+data/processed/
+data/raw/
+# 원본 HWP 데이터 (보안이 필요하다면 주석 해제)
+# data/raw/
+
+# 운영체제 시스템 파일
+.DS_Store
+Thumbs.db
