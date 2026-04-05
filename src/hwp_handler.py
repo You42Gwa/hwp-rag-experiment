@@ -29,9 +29,10 @@ def get_table_from_hwp(file_path):
         # 1. 표의 전체 크기(행, 열) 파악 및 그리드 초기화
         rows = table.find_all('tr')
         num_rows = len(rows)
-        num_cols = 0
-        for cell in rows[0].find_all(['td', 'th']):
-            num_cols += int(cell.get('colspan', 1))
+        num_cols = max(
+            sum(int(cell.get('colspan', 1)) for cell in row.find_all(['td', 'th']))
+            for row in rows
+        )
 
         # 데이터가 밀리지 않도록 빈 그리드 공간을 만듦
         grid = [[None for _ in range(num_cols)] for _ in range(num_rows)]

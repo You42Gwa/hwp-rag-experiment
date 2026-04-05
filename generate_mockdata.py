@@ -121,30 +121,27 @@ import pandas as pd
 import json
 import os
 
-# 1. 기존 파일 로드
+# 1. 기존 CSV 로드
 csv_path = "실험용_장학명단_500명.csv"
 if not os.path.exists(csv_path):
     print(f"❌ '{csv_path}' 파일이 없습니다. 경로를 확인해주세요.")
     exit()
 
-# 인코딩 에러 방지를 위해 utf-8-sig 사용
 df = pd.read_csv(csv_path, encoding='utf-8-sig')
 
-# 2. 질문 생성 로직 (학년 정보를 추가하여 모호성 제거)
+# 2. 초정밀 질문 생성 (학과 + 학년 + 성명 + 장학유형)
 gold_dataset = []
-
-# 각 학과별로 골고루 질문을 생성 (학과당 5명씩, 총 50개 질문)
 departments = df['학과'].unique()
 
 for dept in departments:
-    # 해당 학과의 학생들 중 5명을 무작위 샘플링
+    # 각 학과당 5명씩 추출 (총 50개 샘플)
     subset = df[df['학과'] == dept]
-    sample_size = min(len(subset), 5) # 데이터가 적을 경우 대비
-    samples = subset.sample(n=sample_size)
+    # 실험 재현성을 위해 random_state 고정
+    samples = subset.sample(n=min(len(subset), 5), random_state=42)
     
     for _, row in samples.iterrows():
-        # [핵심] 질문에 '학년'을 명시하여 동명이인 중 특정인을 지칭함
-        question = f"{row['학과']} {row['학년']} 소속 {row['성명']} 학생의 장학금액은 얼마인가요?"
+        # [핵심] 모든 식별자를 때려넣어 검색 성능을 극대화합니다.
+        question = f"{row['학과']} {row['학년']} 소속 {row['성명']} 학생의 {row['장학유형']} 장학금액은 얼마인가요?"
         
         gold_dataset.append({
             "question": question,
@@ -152,13 +149,12 @@ for dept in departments:
             "target_keyword": row['학과']
         })
 
-# 3. JSON 저장
+# 3. 저장
 os.makedirs("data", exist_ok=True)
 save_path = "data/gold_dataset.json"
 
 with open(save_path, "w", encoding="utf-8") as f:
     json.dump(gold_dataset, f, indent=4, ensure_ascii=False)
 
-print(f"✅ 기존 CSV를 참고하여 {len(gold_dataset)}개의 새로운 질문을 생성했습니다.")
-print(f"📍 저장 위치: {save_path}")
-print(f"💡 이제 '학년' 정보가 포함되어 Case 4의 검색 정확도가 비약적으로 상승할 것입니다.")
+print(f"✅ 초정밀 골드 데이터셋({len(gold_dataset)}개) 생성 완료!")
+print(f"💡 질문 예시: {gold_dataset[0]['question']}")

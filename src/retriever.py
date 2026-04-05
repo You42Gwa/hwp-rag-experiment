@@ -21,11 +21,11 @@ def get_hybrid_retriever(documents, vectorstore):
     
     # 2. 벡터 기반 (Dense)
     # Chroma 객체에서 리트리버 인터페이스 추출
-    vector_retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    vector_retriever = vectorstore.as_retriever(search_kwargs={"k": 5}) # 벡터 검색 시 상위 5개 결과 반환
     
     # 3. 하이브리드 결합 (앙상블)
     # RRF(Reciprocal Rank Fusion) 알고리즘으로 결과 통합
     return EnsembleRetriever(
         retrievers=[vector_retriever, bm25_retriever], 
-        weights=[0.4, 0.6]  # BM25의 비중을 높임
+        weights=[0.5, 0.5]  # BM25의 비중을 높임
     )
