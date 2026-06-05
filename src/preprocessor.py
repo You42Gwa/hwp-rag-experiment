@@ -13,9 +13,14 @@ class HWPPreprocessor:
         """Case 2 & 3: 일반 마크다운 (No Padding)"""
         return self.df.to_markdown(index=False)
 
+    # def get_case_4(self):
+    #     """Case 4: 문맥 보정 마크다운 (Context Padding)"""
+    #     df_padded = self.df.copy()
+    #     # 첫 번째 열(보통 학과/카테고리)의 병합된 셀(NaN)을 위에서 아래로 채움
+    #     df_padded.iloc[:, 0] = df_padded.iloc[:, 0].ffill()
+    #     return df_padded.to_markdown(index=False)
+    
     def get_case_4(self):
-        """Case 4: 문맥 보정 마크다운 (Context Padding)"""
         df_padded = self.df.copy()
-        # 첫 번째 열(보통 학과/카테고리)의 병합된 셀(NaN)을 위에서 아래로 채움
-        df_padded.iloc[:, 0] = df_padded.iloc[:, 0].ffill()
+        df_padded = df_padded.ffill(axis=0)  # 모든 열에 대해 위→아래 방향 ffill
         return df_padded.to_markdown(index=False)

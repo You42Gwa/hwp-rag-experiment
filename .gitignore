@@ -1,24 +1,36 @@
-# 가상환경 (Virtual Environment)
+# 가상환경
 venv/
 .venv/
 env/
 
-# 파이썬 캐시 및 컴파일 파일
+# 파이썬 캐시
 __pycache__/
 *.pyc
 
-
-# HWP 변환 시 생성되는 임시 파일
+# HWP 변환 임시 파일
 temp_table.html
 temp.html
 
-
-# 실험 결과 데이터 (선택 사항)
-# 논문용 고정 데이터셋이 아니라면 제외하는 것이 좋습니다.
+# 데이터 (개인정보 포함, 별도 관리)
 data/*
 *.json
 *.csv
 
-# 운영체제 시스템 파일
+# 문서 파일
+*.pdf
+*.txt
+
+# 로컬 전용 스크립트 (실험 완료 후 보관)
+check_collision.py
+show_failures.py
+test.py
+update_goldset.py
+verify_samples.py
+visualize_results.py
+
+# 운영체제
 .DS_Store
 Thumbs.db
+
+# Claude Code
+.claude/

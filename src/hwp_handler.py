@@ -81,12 +81,6 @@ def get_table_from_hwp(file_path):
         
         df = df.map(clean_value)
 
-        # 5. [중요] 첫 번째 열(학과)의 중복을 제거하여 Case 2 상태를 만듦
-        # (이미 preprocessor에서 ffill을 하므로, 여기서는 병합된 첫 칸만 남김)
-        first_col = df.columns[0]
-        # 진짜 비어있어야 할 칸(None)들을 확실히 처리
-        df.loc[df[first_col].duplicated(keep='first'), first_col] = None
-
         return df
         
     finally:

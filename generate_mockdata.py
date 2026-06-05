@@ -120,28 +120,43 @@
 import pandas as pd
 import json
 import os
+import random
 
 # 1. 기존 CSV 로드
 csv_path = "실험용_장학명단_500명.csv"
 if not os.path.exists(csv_path):
-    print(f"❌ '{csv_path}' 파일이 없습니다. 경로를 확인해주세요.")
+    print(f"❌ '{csv_path}' 파일이 없습니다.")
     exit()
 
 df = pd.read_csv(csv_path, encoding='utf-8-sig')
 
-# 2. 초정밀 질문 생성 (학과 + 학년 + 성명 + 장학유형)
+# 2. 질문 템플릿 다양화 (리트리버의 일반화 성능 테스트)
+templates = [
+    "{dept} {grade} 소속 {name} 학생의 {type} 장학금액은 얼마인가요?",
+    "{dept} {grade} {name} 학생이 받는 {type} 장학금은 얼마인가요?",
+    "{name}({dept}, {grade}) 학생의 {type} 장학금 수령액을 알려주세요.",
+    "{type} 장학금을 받는 {dept} {grade} {name} 학생의 지급액은?",
+    "{dept} 학과 {name} 학생({grade})의 {type} 장학금 정보입니다. 금액이 얼마인가요?"
+]
+
 gold_dataset = []
 departments = df['학과'].unique()
 
 for dept in departments:
-    # 각 학과당 5명씩 추출 (총 50개 샘플)
     subset = df[df['학과'] == dept]
-    # 실험 재현성을 위해 random_state 고정
-    samples = subset.sample(n=min(len(subset), 5), random_state=42)
+    
+    # [변경] random_state를 제거하여 매번 다른 5명을 무작위로 추출합니다.
+    samples = subset.sample(n=min(len(subset), 5)) 
     
     for _, row in samples.iterrows():
-        # [핵심] 모든 식별자를 때려넣어 검색 성능을 극대화합니다.
-        question = f"{row['학과']} {row['학년']} 소속 {row['성명']} 학생의 {row['장학유형']} 장학금액은 얼마인가요?"
+        # [변경] 여러 템플릿 중 하나를 무작위로 선택하여 질문을 생성합니다.
+        template = random.choice(templates)
+        question = template.format(
+            dept=row['학과'],
+            grade=row['학년'],
+            name=row['성명'],
+            type=row['장학유형']
+        )
         
         gold_dataset.append({
             "question": question,
@@ -149,12 +164,12 @@ for dept in departments:
             "target_keyword": row['학과']
         })
 
-# 3. 저장
+# 3. 저장 (덮어쓰지 않고 이력을 남기고 싶다면 파일명에 timestamp를 추가할 수 있습니다) [cite: 2026-04-06]
 os.makedirs("data", exist_ok=True)
 save_path = "data/gold_dataset.json"
 
 with open(save_path, "w", encoding="utf-8") as f:
     json.dump(gold_dataset, f, indent=4, ensure_ascii=False)
 
-print(f"✅ 초정밀 골드 데이터셋({len(gold_dataset)}개) 생성 완료!")
-print(f"💡 질문 예시: {gold_dataset[0]['question']}")
+print(f"✅ 랜덤 다변화 데이터셋({len(gold_dataset)}개) 생성 완료!")
+print(f"💡 무작위 질문 예시: {gold_dataset[0]['question']}")
